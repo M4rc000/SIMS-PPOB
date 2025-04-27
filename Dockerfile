@@ -1,21 +1,14 @@
-FROM php:8.1-apache
+FROM php:8.1-cli
 
-# Install extension cURL
-RUN docker-php-ext-install curl
+# Update dan instal libcurl development
+RUN apt-get update && apt-get install -y libcurl4-openssl-dev pkg-config
 
-# Aktifkan mod_rewrite untuk dukungan pretty URLs
-RUN a2enmod rewrite
+WORKDIR /app
+COPY . /app
 
-# Salin seluruh kode aplikasi
-COPY . /var/www/html/
-
-WORKDIR /var/www/html/
-
-# Install Composer dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     composer install --no-dev --optimize-autoloader
 
-# Pastikan konfigurasi Apache sesuai untuk Railway; Anda mungkin perlu menyesuaikan VirtualHost agar menggunakan $PORT
-# Railway menginjeksi PORT, namun Apache default mendengarkan port 80; Anda dapat menambahkan konfigurasi dinamis jika diperlukan
+EXPOSE ${PORT:-8000}
 
-CMD ["apache2-foreground"]
+CMD sh -c 'php -S 0.0.0.0:${PORT:-8000} -t public'
