@@ -110,21 +110,15 @@ function formatTanggal($isoDate)
         </div>
     </div>
 
-    <div class="row mt-4">
+    <div class="row mt-4 mb-5">
         <strong>
             <h6>Semua Transaksi</h6>
         </strong>
         <!-- List transaksi -->
-        <?php foreach ($transactions as $transaction): ?>
-            <div class="transaction-item">
-                <div class="transaction-amount transaction-plus">+ Rp<?= $transaction['total_amount']; ?></div>
-                <small><?= formatTanggal($transaction['created_on']); ?></small>
-                <div class="transaction-footer"><?= $transaction['description']; ?></div>
-            </div>
-        <?php endforeach; ?>
+        <div id="transaction-list"></div>
 
         <!-- Show more -->
-        <a href="#" class="show-more">Show more</a>
+        <a href="#" class="show-more" id="show-more">Show more</a>
     </div>
 </div>
 <?= $this->endSection(); ?>
@@ -231,6 +225,69 @@ function formatTanggal($isoDate)
                 }
                 // Kalau cancel, tidak lakukan apa-apa
             });
+        });
+
+        let offset = 0;
+        const limit = 5;
+
+        function formatTanggal(isoDate) {
+            const bulanIndonesia = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+            const date = new Date(isoDate);
+            const tanggal = date.getDate();
+            const bulan = bulanIndonesia[date.getMonth()];
+            const tahun = date.getFullYear();
+            const jam = String(date.getHours()).padStart(2, '0');
+            const menit = String(date.getMinutes()).padStart(2, '0');
+            return `${tanggal} ${bulan} ${tahun} · ${jam}:${menit} WIB`;
+        }
+
+        function loadTransactions() {
+            $.ajax({
+                url: `<?= base_url('home/load-transaction'); ?>`,
+                method: 'POST',
+                data: {
+                    offset,
+                    limit
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status == 0) {
+                        const transactions = response.data.records;
+                        transactions.forEach(transaction => {
+                            const amountClass = transaction.transaction_type === 'TOPUP' ? 'transaction-plus' : 'transaction-minus';
+                            const symbol = transaction.transaction_type === 'TOPUP' ? '+' : '-';
+                            const html = `
+                                <div class="transaction-item">
+                                    <div class="transaction-amount ${amountClass}">
+                                        ${symbol} Rp${transaction.total_amount.toLocaleString('id-ID')}
+                                    </div>
+                                    <small>${formatTanggal(transaction.created_on)}</small>
+                                    <div class="transaction-footer">${transaction.description}</div>
+                                </div>
+                            `;
+                            $('#transaction-list').append(html);
+                        });
+                        offset += limit;
+                    } else {
+                        Swal.fire('Gagal', response.message ?? 'Gagal mengambil data transaksi.', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', 'Gagal terhubung ke server.', 'error');
+                }
+            });
+        }
+
+        // Pertama load
+        loadTransactions();
+
+        // Klik Show More
+        $('#show-more').click(function(e) {
+            e.preventDefault();
+            loadTransactions();
         });
     });
 </script>

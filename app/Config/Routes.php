@@ -29,6 +29,7 @@ $routes->group('home', ['filter' => 'auth'], function ($routes) {
     $routes->get('akun', 'Home::Akun');
     $routes->post('transaction-pay', 'Home::TransactionPay');
     $routes->post('update-akun', 'Home::UpdateAkun');
+    $routes->post('load-transaction', 'Home::LoadTransaction');
     $routes->post('update-profile-image', 'Home::UpdateProfileImage');
     $routes->get('service/(:segment)', 'Home::TransactionService/$1');
 });

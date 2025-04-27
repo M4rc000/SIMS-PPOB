@@ -120,7 +120,7 @@
                         <?php endif; ?>
                     </div>
                     <div class="d-grid">
-                        <button type="submit" class="btn text-white" style="background-color: red">Masuk</button>
+                        <button type="submit" class="btn text-white" style="background-color: red; border-radius: 2px !important">Masuk</button>
                     </div>
                     </form>
                     <p class="mt-3 text-center">

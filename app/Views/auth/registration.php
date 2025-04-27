@@ -115,14 +115,16 @@
                             <span class="input-group-text" id="password-addon">
                                 <i class="bi bi-lock"></i>
                             </span>
-                            <input type="password" class="form-control" placeholder="buat Password" id="password-input" aria-label="Buat Password" aria-describedby="password-addon" required name="password">
-                            <?php if (isset($validation) && $validation->getError('password')): ?>
-                                <small class="error"><?= $validation->getError('password') ?></small>
-                            <?php endif; ?>
+                            <input type="password" class="form-control <?= (isset($validation) && $validation->hasError('password')) ? 'is-invalid' : '' ?>" placeholder="buat Password" id="password-input" aria-label="Buat Password" aria-describedby="password-addon" required name="password">
                             <span class="input-group-text" style="cursor: pointer;" id="togglePassword">
                                 <i class="bi bi-eye"></i>
                             </span>
                         </div>
+                        <?php if (isset($validation) && $validation->hasError('password')): ?>
+                            <div class="invalid-feedback d-block">
+                                <?= $validation->getError('password') ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     <!-- Input Konfirmasi Password -->
                     <div class="mb-4">
@@ -135,9 +137,12 @@
                                 <i class="bi bi-eye"></i>
                             </span>
                         </div>
+                        <div class="d-flex justify-content-end pt-1">
+                            <small id="confirm-password-error" class="text-danger" style="display:none;">Password tidak sama</small>
+                        </div>
                     </div>
                     <div class="d-grid">
-                        <button type="submit" class="btn text-white" style="background-color: red">Registrasi</button>
+                        <button type="submit" class="btn text-white" style="background-color: red; border-radius: 2px !important">Registrasi</button>
                     </div>
                     </form>
                     <p class="mt-3 text-center">
@@ -192,6 +197,29 @@
                     icon: "success"
                 });
             <?php endif; ?>
+
+            $('#confirm-password-input').on('input', function() {
+                const password = $('#password-input').val();
+                const confirmPassword = $(this).val();
+
+                if (password !== confirmPassword) {
+                    $('#confirm-password-error').show();
+                } else {
+                    $('#confirm-password-error').hide();
+                }
+            });
+
+            // Kalau mau cek lagi saat user edit password utama
+            $('#password-input').on('input', function() {
+                const password = $(this).val();
+                const confirmPassword = $('#confirm-password-input').val();
+
+                if (password !== confirmPassword && confirmPassword.length > 0) {
+                    $('#confirm-password-error').show();
+                } else {
+                    $('#confirm-password-error').hide();
+                }
+            });
         });
     </script>
 </body>

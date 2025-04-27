@@ -297,4 +297,22 @@ class Home extends BaseController
             ]);
         }
     }
+
+    public function LoadTransaction(){
+        $token = session()->get('token');
+        $limit = $this->request->getPost('limit');
+        $offset = $this->request->getPost('offset');
+
+        $client = \Config\Services::curlrequest();
+        $TransactionRes = $client->request('GET', 'https://take-home-test-api.nutech-integrasi.com/transaction/history?offset='.$offset.'&limit='.$limit.'', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+            ],
+            'http_errors' => false,
+        ]);
+
+        $TransactionResult  = json_decode($TransactionRes->getBody(), true);
+        echo json_encode($TransactionResult);
+    }
+    
 }

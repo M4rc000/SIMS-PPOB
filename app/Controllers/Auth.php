@@ -26,7 +26,7 @@ class Auth extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return view('auth/', [ // Make sure this matches your login view file
+            return view('auth/login', [ // Make sure this matches your login view file
                 'title'      => 'Login',
                 'validation' => $this->validator
             ]);
@@ -58,7 +58,7 @@ class Auth extends BaseController
             return redirect()->to('/home');
         } else {
             session()->setFlashdata('error', $result['message']);
-            return redirect()->back()->withInput();
+            return redirect()->to('auth')->withInput();
         }
     }
 
